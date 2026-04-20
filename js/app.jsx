@@ -182,7 +182,6 @@ function App(){
   if (pinEnabled && !unlocked) {
     return (
       <div className="app">
-        <Sty/>
         <AuthScreen onUnlock={() => setUnlocked(true)} />
       </div>
     );
@@ -190,7 +189,6 @@ function App(){
 
   return(
     <div className="app">
-      <Sty/>
       <div className="scroll">{pages[tab]}</div>
 
       {/* Modals */}
