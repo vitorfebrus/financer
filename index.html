@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <meta name="theme-color" content="#0b0b12"/>
+  <meta name="description" content="Controle financeiro pessoal"/>
+
+  <!-- PWA / iOS -->
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Finanças"/>
+  <link rel="apple-touch-icon" href="assets/icon-192.png"/>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json"/>
+
+  <title>💰 Finanças</title>
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="css/style.css"/>
+
+  <!-- React + Babel CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body { margin: 0; background: #0b0b12; overflow: hidden; }
+    #root { height: 100vh; }
+    #splash {
+      position: fixed; inset: 0; background: #0b0b12;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 14px; z-index: 9999;
+      transition: opacity .4s;
+    }
+    #splash .ico { font-size: 52px; }
+    #splash p { color: #7878a0; font-family: sans-serif; font-size: 13px; margin: 0; }
+  </style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="ico">💰</div>
+  <p>Carregando...</p>
+</div>
+<div id="root"></div>
+
+<!-- ── Expose React hooks to global scope (used by all JSX components) ─────── -->
+<script>
+  const { useState, useEffect, useMemo, useCallback, useRef } = React;
+</script>
+
+<!-- ── Plain JS: constants, storage, helpers, parsers (no JSX) ────────────── -->
+<script src="js/config.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/helpers.js"></script>
+<script src="js/parsers.js"></script>
+
+<!-- ── JSX components (loaded & transpiled by Babel in order) ─────────────── -->
+<script type="text/babel" data-presets="react" src="js/components/Icons.jsx"></script>
+<script type="text/babel" data-presets="react" src="js/components/Calc.jsx"></script>
+<script type="text/babel" data-presets="react" src="js/components/Shared.jsx"></script>
+<script type="text/babel" data-presets="react" src="js/components/Auth.jsx"></script>
+<script type="text/babel" data-presets="react" src="js/components/NotifImporter.jsx"></script>
+<script type="text/babel" data-presets="react" src="js/components/Banners.jsx"></script>
+<script type="text/babel" data-presets="react" src="js/components/FilterModal.jsx"></script>
+<script type="text/babel" data-presets="react" src="js/components/FabTxRow.jsx"></script>
+<script type="text/babel" data-presets="react" src="js/components/Pages.jsx"></script>
+<script type="text/babel" data-presets="react" src="js/components/Modals.jsx"></script>
+
+<!-- ── Main App (mounts React after all components are defined) ───────────── -->
+<script type="text/babel" data-presets="react" src="js/app.jsx"></script>
+
+<!-- ── PWA: service worker registration + install prompt ──────────────────── -->
+<script>
+  // Register service worker (requires HTTPS — works on GitHub Pages)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js', { scope: './' })
+        .then(reg => console.log('[SW] Registered:', reg.scope))
+        .catch(err => console.log('[SW] Registration failed:', err));
+    });
+  }
+
+  // Intercept Chrome's "Add to Home Screen" prompt
+  window.__pwaPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    window.__pwaPrompt = e;
+    document.dispatchEvent(new CustomEvent('pwa-installable'));
+  });
+  window.addEventListener('appinstalled', () => {
+    window.__pwaPrompt = null;
+    document.dispatchEvent(new CustomEvent('pwa-installed'));
+  });
+
+  // Hide splash once Babel finishes loading all scripts
+  // Babel standalone fires a custom event or we poll
+  (function hideSplash() {
+    const splash = document.getElementById('splash');
+    if (!splash) return;
+    // Babel processes scripts async; wait for #root to have children
+    const observer = new MutationObserver(() => {
+      if (document.getElementById('root').children.length > 0) {
+        splash.style.opacity = '0';
+        setTimeout(() => splash.remove(), 400);
+        observer.disconnect();
+      }
+    });
+    observer.observe(document.getElementById('root'), { childList: true });
+    // Fallback timeout
+    setTimeout(() => { splash.style.opacity='0'; setTimeout(()=>splash.remove(),400); }, 5000);
+  })();
+</script>
+
+</body>
+</html>
