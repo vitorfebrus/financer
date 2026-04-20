@@ -23,7 +23,10 @@ function parseNotif(text){
 
 
   // ── Mobills / native format detector & converter ──────────────────────────
-function parseMobillsOrNative(raw){
+function parseMobillsOrNative(raw, existingState){
+  const accounts   = existingState?.accounts   || [];
+  const categories = existingState?.categories || [];
+  const tags       = existingState?.tags       || [];
     // Native format: has "accounts" key at root
     if(!Array.isArray(raw)&&raw.transactions!==undefined){return{type:"native"};}
     if(!Array.isArray(raw)||raw.length===0)return null;

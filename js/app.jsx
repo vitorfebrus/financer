@@ -123,7 +123,7 @@ function App(){
     reader.onload=e=>{
       try{
         const raw=JSON.parse(e.target.result);
-        const result=parseMobillsOrNative(raw);
+        const result=parseMobillsOrNative(raw,{accounts,categories,tags});
         if(!result){showToast("Formato de JSON não reconhecido",false);return;}
 
         if(result.type==="native"){
