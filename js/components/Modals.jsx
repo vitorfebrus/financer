@@ -260,9 +260,6 @@ function TagModal({tag,onClose,onSave,onDelete}){
   );
 }
 
-// ─── Mount ────────────────────────────────────────────────────────────────────
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
-</script>
 
 
 // ─── Change / Set PIN Modal ───────────────────────────────────────────────────
